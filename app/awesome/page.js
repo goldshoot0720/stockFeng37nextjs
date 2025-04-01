@@ -53,6 +53,7 @@ export default function AwesomePage() {
   return (
     <main style={{ padding: "20px" }}>
       <h1 style={{ textAlign: "center", marginBottom: "20px" }}>台灣證券交易所股票資訊</h1>
+      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>By https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL</h2>
 
       {/* 搜索欄位 */}
       <div style={{ marginBottom: "20px", textAlign: "center" }}>
