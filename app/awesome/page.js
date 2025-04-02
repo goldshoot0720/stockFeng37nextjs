@@ -18,117 +18,141 @@ export default function AwesomePage() {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        setStocks(data); // 假設您的 API 返回的是一個陣列
-        setFilteredStocks(data); // 初始時顯示所有資料
+        setStocks(data);
+        setFilteredStocks(data);
       } catch (error) {
         console.error("Failed to fetch stock data:", error);
-        setError(error.message);  // 儲存錯誤信息
+        setError(error.message);
       } finally {
         setLoading(false);
       }
     }
-
     fetchStocks();
   }, []);
 
   useEffect(() => {
-    // 過濾邏輯
-    const filtered = stocks.filter(stock => {
-      return (
-        stock.Code.includes(searchCode) &&
-        stock.Name.toLowerCase().includes(searchName.toLowerCase())
-      );
-    });
+    const filtered = stocks.filter(stock => 
+      stock.Code.includes(searchCode) && 
+      stock.Name.toLowerCase().includes(searchName.toLowerCase())
+    );
     setFilteredStocks(filtered);
   }, [searchCode, searchName, stocks]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
-    <main style={{ padding: "20px" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>台灣證券交易所股票資訊</h1>
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>By https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL</h2>
+    <main style={styles.container}>
+      <h1 style={styles.title}>台灣證券交易所股票資訊</h1>
+      <h2 style={styles.subtitle}>By https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL</h2>
 
       {/* 搜索欄位 */}
-      <div style={{ marginBottom: "20px", textAlign: "center" }}>
+      <div style={styles.searchContainer}>
         <input
           type="text"
           placeholder="搜尋股票代號"
           value={searchCode}
           onChange={(e) => setSearchCode(e.target.value)}
-          style={inputStyle}
+          style={styles.input}
         />
         <input
           type="text"
           placeholder="搜尋名稱"
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
-          style={inputStyle}
+          style={styles.input}
         />
       </div>
 
-      {/* 表格 */}
-      <table style={{ width: "100%", borderCollapse: "collapse", margin: "0 auto" }}>
-        <thead>
-          <tr style={{ backgroundColor: "#f4f4f4", textAlign: "center" }}>
-            <th style={tableHeaderStyle}>股票代號</th>
-            <th style={tableHeaderStyle}>名稱</th>
-            <th style={tableHeaderStyle}>成交股數</th>
-            <th style={tableHeaderStyle}>成交金額</th>
-            <th style={tableHeaderStyle}>開盤價</th>
-            <th style={tableHeaderStyle}>最高價</th>
-            <th style={tableHeaderStyle}>最低價</th>
-            <th style={tableHeaderStyle}>收盤價</th>
-            <th style={tableHeaderStyle}>變動</th>
-            <th style={tableHeaderStyle}>成交筆數</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredStocks.map((stock, index) => (
-            <tr key={index} style={index % 2 === 0 ? { backgroundColor: "#f9f9f9" } : {}}>
-              <td style={tableCellStyle}>{stock.Code}</td>
-              <td style={tableCellStyle}>{stock.Name}</td>
-              <td style={tableCellStyle}>{stock.TradeVolume}</td>
-              <td style={tableCellStyle}>{stock.TradeValue}</td>
-              <td style={tableCellStyle}>{stock.OpeningPrice}</td>
-              <td style={tableCellStyle}>{stock.HighestPrice}</td>
-              <td style={tableCellStyle}>{stock.LowestPrice}</td>
-              <td style={tableCellStyle}>{stock.ClosingPrice}</td>
-              <td style={tableCellStyle}>{stock.Change}</td>
-              <td style={tableCellStyle}>{stock.Transaction}</td>
+      {/* 響應式表格 - 允許橫向滾動 */}
+      <div style={styles.tableWrapper}>
+        <table style={styles.table}>
+          <thead>
+            <tr style={styles.tableHeaderRow}>
+              <th style={styles.tableHeader}>股票代號</th>
+              <th style={styles.tableHeader}>名稱</th>
+              <th style={styles.tableHeader}>收盤價</th>
+              <th style={styles.tableHeader}>變動</th>
+              <th style={styles.tableHeader}>成交股數</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredStocks.map((stock, index) => (
+              <tr key={index} style={index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd}>
+                <td style={styles.tableCell}>{stock.Code}</td>
+                <td style={styles.tableCell}>{stock.Name}</td>
+                <td style={styles.tableCell}>{stock.ClosingPrice}</td>
+                <td style={styles.tableCell}>{stock.Change}</td>
+                <td style={styles.tableCell}>{stock.TradeVolume}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </main>
   );
 }
 
-const tableHeaderStyle = {
-  padding: "10px 15px",
-  border: "1px solid #ddd",
-  textAlign: "center",
-  backgroundColor: "#4CAF50",
-  color: "white",
-};
-
-const tableCellStyle = {
-  padding: "10px 15px",
-  border: "1px solid #ddd",
-  textAlign: "center",
-};
-
-const inputStyle = {
-  margin: "5px",
-  padding: "10px",
-  fontSize: "16px",
-  border: "1px solid #ddd",
-  borderRadius: "5px",
-  width: "200px",
+const styles = {
+  container: {
+    padding: "15px",
+    maxWidth: "1000px",
+    margin: "auto",
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: "10px",
+    fontSize: "24px",
+  },
+  subtitle: {
+    textAlign: "center",
+    fontSize: "14px",
+    color: "#666",
+    marginBottom: "15px",
+  },
+  searchContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: "10px",
+    marginBottom: "15px",
+  },
+  input: {
+    flex: "1 1 45%",
+    padding: "10px",
+    fontSize: "16px",
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+    minWidth: "120px",
+  },
+  tableWrapper: {
+    overflowX: "auto",
+    borderRadius: "5px",
+    border: "1px solid #ddd",
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+  },
+  tableHeaderRow: {
+    backgroundColor: "#4CAF50",
+    color: "white",
+  },
+  tableHeader: {
+    padding: "10px",
+    border: "1px solid #ddd",
+    textAlign: "center",
+    minWidth: "100px",
+  },
+  tableCell: {
+    padding: "8px",
+    border: "1px solid #ddd",
+    textAlign: "center",
+  },
+  tableRowEven: {
+    backgroundColor: "#f9f9f9",
+  },
+  tableRowOdd: {
+    backgroundColor: "white",
+  },
 };
